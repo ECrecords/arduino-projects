@@ -1,12 +1,24 @@
 #include "steppy.h"
+#include "a4988.h"
+
+
+A4988 hw(PIN2, PIN3, PIN4);
 
 void setup()
 {
+    Serial.begin(BAUD_RATE);
+    pinMode(PIN2, OUTPUT);
+    pinMode(PIN3, OUTPUT);
+    pinMode(PIN4, OUTPUT);
     pinMode(INPUT1, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(INPUT1), handle_input1, FALLING);
 
     pinMode(INPUT2, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(INPUT2), handle_input2, FALLING);
+
+    hw.set_speed(8000);
+    hw.set_direction(true);
+    hw.start();
 }
 
 volatile bool input1_intr = false;
@@ -26,22 +38,32 @@ void update_state(STEP_STATES_T &state)
     switch (state)
     {
     case STOPPED:
-        if (INPUT1)
+        Serial.println("STOPPED");
+        if (input1_intr)
         {
+            input1_intr = false;
+            Serial.println("\tINPUT1");
         }
-        else if (INPUT2)
+        else if (input2_intr)
         {
+            input2_intr = false;
+            Serial.println("\tINPUT2");
         }
         else
             state = state;
         break;
 
-    case RUNNING:
-        if (INPUT1)
+    case RUN_INIT:
+        Serial.println("RUNNING");
+        if (input1_intr)
         {
+            input1_intr = false;
+            Serial.println("\tINPUT1");
         }
-        else if (INPUT2)
+        else if (input2_intr)
         {
+            input2_intr = false;
+            Serial.println("\tINPUT2");
         }
         else
             state = state;
@@ -50,7 +72,12 @@ void update_state(STEP_STATES_T &state)
 }
 
 STEP_STATES_T motor_state = STOPPED;
+
+
 void loop()
 {
-    update_state(motor_state);
+    hw.sstep();
+    //update_state(motor_state);
+
+//    delay(2000);
 }
