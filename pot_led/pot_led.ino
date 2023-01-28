@@ -2,7 +2,7 @@
  * @ Author: Elvis Chino-Islas
  * @ Create Time: 2023-01-27 14:31:21
  * @ Modified by: Elvis Chino-Islas
- * @ Modified time: 2023-01-27 17:43:22
+ * @ Modified time: 2023-01-27 18:03:13
  * @ Description: 
  *  Program takes input from a potentiometer
  *  and maps the value read from it to duty cycle
@@ -10,7 +10,12 @@
  */
 
 #include <pins_arduino.h>
-#include "pot_led.h"
+
+// In-line constants
+#define MAX_DUTY    255   
+#define MIN_DUTY    0
+#define UINT10_MAX  1023
+#define BAUD_RATE   115200
 
 void setup()
 {
@@ -31,18 +36,12 @@ void setup()
 
 void loop()
 {
+    // read voltage level from potentiometer
     uint32_t pot_val = analogRead(A0);
-    uint32_t duty = map(pot_val, 0, UINT10_MAX, MIN_DUTY_MS, MAX_DUTY_MS);
 
-    if (duty == MIN_DUTY_MS)
-        digitalWrite(PIN3, LOW);
-    else if (duty > MAX_DUTY_MS - 2)
-        digitalWrite(PIN3, HIGH);
-    else
-    {
-        digitalWrite(PIN3, LOW);
-        delay(T_50HZ_MS - duty);
-        digitalWrite(PIN3, HIGH);
-        delay(duty);
-    }
+    // map potentiometer value (0-1023) to PWM duty cycle (0-255)
+    uint32_t duty = map(pot_val, 0, UINT10_MAX, MIN_DUTY, MAX_DUTY);
+
+    // output PWM signal with determined duty cycle
+    analogWrite(PIN3, duty);
 }
