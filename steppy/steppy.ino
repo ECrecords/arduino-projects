@@ -2,14 +2,14 @@
  * @ Author: Elvis Chino-Islas
  * @ Create Time: 2023-01-27 23:07:07
  * @ Modified by: Elvis Chino-Islas
- * @ Modified time: 2023-01-28 15:05:53
+ * @ Modified time: 2023-01-28 19:17:48
  * @ Description:
  */
 
 #include "steppy.h"
 
 A4988 hw;
-STEP_STATES_T motor_state;
+
 void setup()
 {
     Serial.begin(BAUD_RATE);
@@ -22,7 +22,6 @@ void setup()
     hw = A4988(ENABLE, STEP, DIR);
 
     hw.init(8000, true);
-    motor_state = STOP_INIT;
 }
 
 volatile bool input1_intr = false;
@@ -37,153 +36,176 @@ void handle_input2()
     input2_intr = true;
 }
 
-void update_state(STEP_STATES_T &state)
+inline ret_code det_state()
 {
-    switch (state)
+    if (input1_intr)
     {
-    case STOP_INIT:
-        if (input1_intr)
-        {
-            state = RUN_INIT;
-            input1_intr = false;
-        }
-        else if (input2_intr)
-        {
-            input2_intr = false;
-        }
-        else
-            state = state;
-        break;
-
-    case RUN_INIT:
-        if (input1_intr)
-        {
-            state = RUN_SPEED1;
-            input1_intr = false;
-        }
-        else if (input2_intr)
-        {
-            state = STOP_INIT;
-            input2_intr = false;
-        }
-        else
-            state = state;
-        break;
-        
-    case RUN_SPEED1:
-        if (input1_intr)
-        {
-            state = RUN_SPEED2;
-            input1_intr = false;
-        }
-        else if (input2_intr)
-        {
-            state = STOP_SPEED1;
-            input2_intr = false;
-        }
-        else
-            state = state;
-        break;
-
-    case RUN_SPEED2:
-        if (input1_intr)
-        {
-            state = RUN_SPEED3;
-            input1_intr = false;
-        }
-        else if (input2_intr)
-        {
-            state = STOP_SPEED2;
-            input2_intr = false;
-        }
-        else
-            state = state;
-        break;
-
-    case RUN_SPEED3:
-        if (input1_intr)
-        {
-            state = RUN_SPEED4;
-            input1_intr = false;
-        }
-        else if (input2_intr)
-        {
-            state = STOP_SPEED3;
-            input2_intr = false;
-        }
-        else
-            state = state;
-        break;
-        
-    case RUN_SPEED4:
-        if (input1_intr)
-        {
-            input1_intr = false;
-        }
-        else if (input2_intr)
-        {
-            state = STOP_SPEED3;
-            input2_intr = false;
-        }
-        else
-            state = state;
-        break;
+        delay(100);
+        input1_intr = false;
+        return input1;
     }
-}
-
-inline void rpm_start(A4988 driver, uint32_t rpm)
-{
-    driver.set_speed(rpm);
-    driver.stop();
-}
-
-void state_action(STEP_STATES_T state)
-{
-    switch (state)
+    else if (input2_intr)
     {
-    case STOP_INIT:
-        Serial.println("STOPPED");
-        hw.stop();
-        break;
-    case RUN_INIT:
-        Serial.println("INIT");
-        hw.start();
-        break;
+        delay(100);
+        input2_intr = false;
+        return input2;
+    }
+    else
+        return repeat;
+}
 
-    case RUN_SPEED1:
-        rpm_start(hw, SPEED1_RPM);
-        break;
-    case STOP_SPEED1:
-        hw.stop();
-        break;
+ret_code stop_init_state(void)
+{
+    hw.stop();
 
-    case RUN_SPEED2:
-        rpm_start(hw, SPEED2_RPM);
-        break;
-    case STOP_SPEED2:
-        hw.stop();
-        break;
+    return det_state();
+}
 
-    case RUN_SPEED3:
-        rpm_start(hw, SPEED3_RPM);
-        break;
-    case STOP_SPEED3:
-        hw.stop();
-        break;
+ret_code run_init_state(void)
+{
+    hw.set_speed(2000);
+    hw.start();
 
-    case RUN_SPEED4:
-        rpm_start(hw, SPEED4_RPM);
-        break;
-    case STOP_SPEED4:
-        hw.stop();
-        break;
+    return det_state();
+}
+ret_code run_sp1_state(void)
+{
+    hw.set_speed(SPEED1_RPM);
+    hw.start();
+
+    return det_state();
+}
+ret_code run_sp2_state(void)
+{
+    hw.set_speed(SPEED2_RPM);
+    hw.start();
+
+    return det_state();
+}
+
+ret_code run_sp3_state(void)
+{
+    hw.set_speed(SPEED3_RPM);
+    hw.start();
+
+    return det_state();
+}
+
+ret_code run_sp4_state(void)
+{
+    hw.set_speed(SPEED4_RPM);
+    hw.start();
+
+    return det_state();
+}
+ret_code stop_sp2_state(void)
+{
+    hw.stop();
+
+    return det_state();
+}
+ret_code stop_sp1_state(void)
+{
+    hw.stop();
+
+    return det_state();
+}
+ret_code stop_sp3_state(void)
+{
+    hw.stop();
+
+    return det_state();
+}
+
+ret_code stop_sp4_state(void)
+{
+    hw.stop();
+
+    return det_state();
+}
+
+ret_code (*state[])(void) =
+    {
+        stop_init_state,
+        run_init_state,
+
+        stop_sp1_state,
+        run_sp1_state,
+        
+        stop_sp2_state,
+        run_sp2_state,
+
+        stop_sp3_state,
+        run_sp3_state,
+
+        stop_sp4_state,
+        run_sp4_state};
+
+transition state_transitions[] = {
+
+    {run_init, input1, run_sp1},
+    {run_init, input2, stop_init},
+    {run_init, repeat, run_init},
+
+    {run_sp1, input1, run_sp2},
+    {run_sp1, input2, stop_sp1},
+    {run_sp1, repeat, run_sp1},
+
+    {run_sp2, input1, run_sp3},
+    {run_sp2, input2, stop_sp2},
+    {run_sp2, repeat, run_sp2},
+
+    {run_sp3, input1, run_sp4},
+    {run_sp3, input2, stop_sp3},
+    {run_sp3, repeat, run_sp3},
+
+    {run_sp4, input1, run_sp4},
+    {run_sp4, input2, stop_sp4},
+    {run_sp4, repeat, run_sp4},
+
+    {stop_init, input1, run_init},
+    {stop_init, input2, stop_init},
+    {stop_init, repeat, stop_init},
+
+    {stop_sp1, input1, run_sp1},
+    {stop_sp1, input2, run_init},
+    {stop_sp1, repeat, stop_sp1},
+
+    {stop_sp2, input1, run_sp2},
+    {stop_sp2, input2, run_init},
+    {stop_sp2, repeat, stop_sp2},
+
+    {stop_sp3, input1, run_sp3},
+    {stop_sp3, input2, run_init},
+    {stop_sp3, repeat, stop_sp3},
+
+    {stop_sp4, input1, run_sp4},
+    {stop_sp4, input2, run_init},
+    {stop_sp4, repeat, stop_sp4},
+};
+
+state_codes curr_state;
+
+state_codes transition_lookup(state_codes state, ret_code code)
+{
+    for (size_t i = 0; i < 9*10; i++)
+    {
+        if (state_transitions[i].src_state == state && state_transitions[i].ret_code == code)
+        {
+            return state_transitions[i].dst_state;
+        }
     }
 }
 
 void loop()
 {
-    update_state(motor_state);
-    state_action(motor_state);
+    auto state_action = state[curr_state];
+    ret_code rc = state_action();
+    curr_state = transition_lookup(curr_state, rc);
 
     hw.sstep();
+    char buff[255];
+    state_codes curr_state_cpy = curr_state;
+    sprintf(buff, "Current State : %2i | Return Code : %2i\r", curr_state_cpy, rc);
+    Serial.print(buff);
 }
