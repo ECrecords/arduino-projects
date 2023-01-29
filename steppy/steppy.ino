@@ -2,7 +2,7 @@
  * @ Author: Elvis Chino-Islas
  * @ Create Time: 2023-01-27 23:07:07
  * @ Modified by: Elvis Chino-Islas
- * @ Modified time: 2023-01-29 09:09:01
+ * @ Modified time: 2023-01-29 13:04:25
  * @ Description:
  */
 
@@ -118,23 +118,22 @@ ret_code (*state[])(void) =
 
 state_codes state_transitions[N_STATES][N_TRANSITIONS_PER_STATE] = {
 
-        [stop_init] = {run_sp1, stop_init, run_init},
-        [run_init]  = {run_init, stop_init, stop_init},
+    {run_init, stop_init, stop_init},
+    {run_sp1, stop_sp1, run_init},
 
-        [stop_init] ={run_sp1, run_init, stop_sp1},
-        [run_init]  ={run_sp2, stop_sp1, run_sp1},
+    {run_sp1, run_init, stop_sp1},
+    {run_sp2, stop_sp1, run_sp1},
 
-        [stop_init] ={run_sp2, run_init, stop_sp2},
-        [run_init]  ={run_sp3, stop_sp2, run_sp2},
+    {run_sp2, run_init, stop_sp2},
+    {run_sp3, stop_sp2, run_sp2},
 
-        [stop_init] ={run_sp3, run_init, stop_sp3},
-        [run_init]  ={run_sp4, stop_sp3, run_sp3},
-        
-        [stop_init] ={run_sp4, run_init, stop_sp4},
-        [run_init]  ={run_sp4, stop_sp4, run_sp4}
-};
+    {run_sp3, run_init, stop_sp3},
+    {run_sp4, stop_sp3, run_sp3},
 
-state_codes curr_state;
+    {run_sp4, run_init, stop_sp4},
+    {run_sp4, stop_sp4, run_sp4}};
+
+state_codes curr_state = stop_init;
 
 void loop()
 {
