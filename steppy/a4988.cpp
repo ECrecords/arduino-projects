@@ -1,7 +1,7 @@
 #include "a4988.h"
 
 A4988::A4988(uint8_t ena_pin, uint8_t step_pin, uint8_t dir_pin)
-    : enable(ena_pin), step(step_pin), dir(dir_pin)
+    : enable(ena_pin), step(step_pin), dir(dir_pin), t_ms(0)
 {
     pinMode(enable, OUTPUT);
     pinMode(step, OUTPUT);
@@ -23,7 +23,8 @@ void A4988::init(uint32_t rpm, bool clockwise)
 
 void A4988::set_speed(uint32_t rpm)
 {
-    t_ms = (60 / static_cast<float>(rpm)) * 1000;
+    uint32_t tmp = static_cast<int>((60 / static_cast<float>(rpm)) * 1000);
+    t_ms = (tmp == t_ms ) ? t_ms : tmp;
 }
 
 void A4988::set_direction(bool clockwise)

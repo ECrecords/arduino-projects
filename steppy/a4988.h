@@ -12,7 +12,7 @@ private:
     pin_t dir;
 
 public:
-    float t_ms;
+    uint32_t t_ms;
 
 public:
     A4988(uint8_t ena_pin, uint8_t step_pin, uint8_t dir_pin);
