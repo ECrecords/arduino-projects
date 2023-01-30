@@ -3,7 +3,7 @@
 ## Submission Details
 **Author:** Elvis Chino-Islas  
 **Course:** COMP522  
-**Course Name:** Embedded System Applications
+**Course Name:** Embedded System Applications  
 **Completion Date:** 29 January 2023
 
 ## Program Description
