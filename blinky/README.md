@@ -16,7 +16,8 @@ A finite state machine (FSM) was employed in the program to implement the functi
 
 The state transition was handled in the function named `update_state`, the press of the button causes a state transition. The output was solely determined by the state, the output being the change of blinking frequency.
 
-An interrupt was used for the push button which triggers on a falling edge as the pin connected to the button was set to have an pull-up resistor configured.
+An interrupt was used for the push button which triggers on a falling edge as the pin connected to the button was set to have an pull-up resistor configured. The interrupt service routine (ISR) simply set a flag, `interrupt`, true whenever triggered.
+The program would see this flag set and handle the input and set the flag back to false.
 
 A state diagram of the FSM can be seen below:
 
