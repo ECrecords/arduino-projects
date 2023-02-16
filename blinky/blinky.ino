@@ -13,7 +13,7 @@
 
 // signal used to enable auxilary debug pins to be connected
 // to oscilloscope
-#define DEBUG
+// #define DEBUG
 
 // Global variables
 STATE_T led_state; // holds the current led state
@@ -51,15 +51,16 @@ volatile bool interrupt = false;
 // ISR to handle a button press
 void handle_btn()
 {
+    // critical region, no interrupts are
+    // allowed until inter. is handled
+    noInterrupts();
     interrupt = true;
 }
 
 // function that handles the transition from state-to-state
 void update_state(STATE_T &state)
 {
-    // critical region, no interrupts are
-    // allowed while in this section
-    noInterrupts();
+    
 
     switch (led_state)
     {
@@ -77,7 +78,6 @@ void update_state(STATE_T &state)
         break;
     }
 
-    interrupts();
 }
 
 // function uses the supplied state to return
@@ -111,6 +111,10 @@ void loop()
 
         // mark button press as handled
         interrupt = false;
+
+        // enable interrupts
+        interrupts();
+
     }
 
     // get the required period to blink the LED
