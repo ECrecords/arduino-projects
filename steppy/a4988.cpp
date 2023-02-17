@@ -23,8 +23,7 @@ void A4988::init(uint32_t rpm, bool clockwise)
 
 void A4988::set_speed(uint32_t rpm)
 {
-    uint32_t tmp = static_cast<int>((60 / static_cast<float>(rpm)) * 1000);
-    t_ms = (tmp == t_ms ) ? t_ms : tmp;
+    t_ms = rpm;
 }
 
 void A4988::set_direction(bool clockwise)
@@ -43,9 +42,10 @@ void A4988::stop()
 
 void A4988::sstep()
 {
+
     digitalWrite(step, HIGH);
     delay(static_cast<int>(t_ms) >> 1);
 
     digitalWrite(step, LOW);
-    delay(static_cast<int>(t_ms) >> 1);
+    delay(t_ms - (static_cast<int>(t_ms) >> 1));
 }

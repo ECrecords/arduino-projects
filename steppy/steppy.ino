@@ -2,7 +2,7 @@
  * @ Author: Elvis Chino-Islas
  * @ Create Time: 2023-01-27 23:07:07
  * @ Modified by: Elvis Chino-Islas
- * @ Modified time: 2023-01-29 13:04:25
+ * @ Modified time: 2023-01-30 22:31:38
  * @ Description:
  */
 
@@ -21,7 +21,7 @@ void setup()
 
     hw = A4988(ENABLE, STEP, DIR);
 
-    hw.init(8000, true);
+    hw.init(SPEED1_RPM, true);
 }
 
 volatile bool input1_intr = false;
@@ -56,7 +56,7 @@ inline ret_code det_state()
 
 ret_code run_init_state(void)
 {
-    hw.set_speed(2000);
+    hw.set_speed(SPEED1_RPM);
     hw.start();
 
     return det_state();

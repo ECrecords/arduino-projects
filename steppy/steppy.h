@@ -2,7 +2,7 @@
  * @ Author: Elvis Chino-Islas
  * @ Create Time: 2023-01-27 21:26:50
  * @ Modified by: Elvis Chino-Islas
- * @ Modified time: 2023-01-29 13:50:25
+ * @ Modified time: 2023-01-30 22:41:01
  * @ Description:
  */
 #pragma once
@@ -12,17 +12,17 @@
 
 #define BAUD_RATE   115200
 
-#define INPUT1      PIN2
-#define INPUT2      PIN3
+#define INPUT1      PIN3
+#define INPUT2      PIN2
 
 #define STEP        PIN5 
-#define ENABLE      PIN4
-#define DIR         PIN6
+#define ENABLE      PIN6
+#define DIR         PIN4
 
-#define SPEED1_RPM   6000
-#define SPEED2_RPM   8000
-#define SPEED3_RPM   12000
-#define SPEED4_RPM   16000
+#define SPEED1_RPM   10
+#define SPEED2_RPM   5
+#define SPEED3_RPM   3
+#define SPEED4_RPM   2
 enum state_codes {stop_init = 0, run_init, stop_sp1, run_sp1, stop_sp2, run_sp2, stop_sp3, run_sp3, stop_sp4, run_sp4};
 enum ret_code {input1 = 0, input2, repeat};
 
