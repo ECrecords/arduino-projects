@@ -36,7 +36,7 @@ void setup()
     // print calibration message
     Serial.println(CALIBRATION_MESSAGE);
 
-    // enter calibration mode for 
+    // enter calibration mode for specified period
     while (millis() < CALIBRATION_MODE_PERIOD_MS)
     {
         pot2calibrate = analogRead(POTENTIOMETER_PIN);
