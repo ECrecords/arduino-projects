@@ -26,3 +26,7 @@ During the setup phase, the program enters a calibration mode for a specified pe
 ## How to Use
 
 To use this program, simply load it onto an Arduino board using the Arduino IDE and connect a potentiometer and LED to the appropriate pins. The program will automatically calibrate the potentiometer during setup and begin outputting PWM signals to the LED based on the potentiometer input. You can monitor the current potentiometer and duty cycle values using a serial monitor connected to the board via UART.
+
+# Video Demo
+
+[Youtube Video Link](https://youtu.be/OhkZhodVj7A)
