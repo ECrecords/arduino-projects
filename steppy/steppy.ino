@@ -9,6 +9,29 @@
 #include "steppy.h"
 
 A4988 hw;
+state_codes curr_state = stop_init;
+
+ret_code (*state[])(void) =
+    {
+        stopped,
+        update_speed};
+
+state_codes state_transitions[N_STATES][N_TRANSITIONS_PER_STATE] = {
+
+    {run_init, stop_init, stop_init},
+    {run_sp1, stop_sp1, run_init},
+
+    {run_sp1, run_init, stop_sp1},
+    {run_sp2, stop_sp1, run_sp1},
+
+    {run_sp2, run_init, stop_sp2},
+    {run_sp3, stop_sp2, run_sp2},
+
+    {run_sp3, run_init, stop_sp3},
+    {run_sp4, stop_sp3, run_sp3},
+
+    {run_sp4, run_init, stop_sp4},
+    {run_sp4, stop_sp4, run_sp4}};
 
 void setup()
 {
@@ -54,44 +77,6 @@ inline ret_code det_state()
         return repeat;
 }
 
-ret_code run_init_state(void)
-{
-    hw.set_speed(SPEED0_RPM);
-    hw.start();
-
-    return det_state();
-}
-ret_code run_sp1_state(void)
-{
-    hw.set_speed(SPEED1_RPM);
-    hw.start();
-
-    return det_state();
-}
-ret_code run_sp2_state(void)
-{
-    hw.set_speed(SPEED2_RPM);
-    hw.start();
-
-    return det_state();
-}
-
-ret_code run_sp3_state(void)
-{
-    hw.set_speed(SPEED3_RPM);
-    hw.start();
-
-    return det_state();
-}
-
-ret_code run_sp4_state(void)
-{
-    hw.set_speed(SPEED4_RPM);
-    hw.start();
-
-    return det_state();
-}
-
 ret_code stopped(void)
 {
     hw.stop();
@@ -99,50 +84,46 @@ ret_code stopped(void)
     return det_state();
 }
 
-ret_code (*state[])(void) =
+ret_code update_speed()
+{
+
+    uint32_t rpm;
+
+    switch (curr_state)
     {
-        stopped,
-        run_init_state,
+    case run_init:
+        rpm = SPEED0_RPM;
+        break;
+    case run_sp1:
+        rpm = SPEED1_RPM;
+        break;
+    case run_sp2:
+        rpm = SPEED2_RPM;
+        break;
+    case run_sp3:
+        rpm = SPEED3_RPM;
+        break;
+    case run_sp4:
+        rpm = SPEED4_RPM;
+        break;
+    default:
+        rpm = SPEED0_RPM;
+        break;
+    }
 
-        stopped,
-        run_sp1_state,
+    hw.set_speed(rpm);
+    hw.start();
 
-        stopped,
-        run_sp2_state,
-
-        stopped,
-        run_sp3_state,
-
-        stopped,
-        run_sp4_state};
-
-state_codes state_transitions[N_STATES][N_TRANSITIONS_PER_STATE] = {
-
-    {run_init, stop_init, stop_init},
-    {run_sp1, stop_sp1, run_init},
-
-    {run_sp1, run_init, stop_sp1},
-    {run_sp2, stop_sp1, run_sp1},
-
-    {run_sp2, run_init, stop_sp2},
-    {run_sp3, stop_sp2, run_sp2},
-
-    {run_sp3, run_init, stop_sp3},
-    {run_sp4, stop_sp3, run_sp3},
-
-    {run_sp4, run_init, stop_sp4},
-    {run_sp4, stop_sp4, run_sp4}};
-
-state_codes curr_state = stop_init;
+    return det_state();
+}
 
 void loop()
 {
-    auto state_action = state[curr_state];
+    auto state_action = state[curr_state % 2];
     ret_code rc = state_action();
     curr_state = state_transitions[curr_state][rc];
 
     hw.sstep();
-
 
     char buff[512];
 
