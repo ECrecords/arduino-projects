@@ -56,7 +56,7 @@ inline ret_code det_state()
 
 ret_code run_init_state(void)
 {
-    hw.set_speed(SPEED1_RPM);
+    hw.set_speed(SPEED0_RPM);
     hw.start();
 
     return det_state();
@@ -142,8 +142,10 @@ void loop()
     curr_state = state_transitions[curr_state][rc];
 
     hw.sstep();
-    char buff[255];
-    state_codes curr_state_cpy = curr_state;
-    sprintf(buff, "Current State : %2i | Return Code : %2i\r", curr_state_cpy, rc);
+
+
+    char buff[512];
+
+    sprintf(buff, "Current State : %2i | currAngVelocity: %3i RPM \r\n", curr_state, hw.rpm);
     Serial.print(buff);
 }

@@ -17,7 +17,9 @@ private:
     pin_t ms3;
 
 public:
-    uint32_t t_ms;
+  uint32_t t_ms;
+  uint32_t rpm;
+
 
 public:
     /// @brief create an instance of a A4988 stepper motor driver

@@ -23,7 +23,11 @@ void A4988::init(uint32_t rpm, bool clockwise)
 
 void A4988::set_speed(uint32_t rpm)
 {
-    t_ms = rpm;
+    this->rpm = rpm;
+
+    float freq = (rpm/60.0)*200.0;
+
+    t_ms = static_cast<uint32_t>((1/freq * 1000));
 }
 
 void A4988::set_direction(bool clockwise)
@@ -42,7 +46,6 @@ void A4988::stop()
 
 void A4988::sstep()
 {
-
     digitalWrite(step, HIGH);
     delay(static_cast<int>(t_ms) >> 1);
 
