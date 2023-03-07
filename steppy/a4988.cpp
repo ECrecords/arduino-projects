@@ -16,6 +16,7 @@ A4988::~A4988()
 
 void A4988::init(uint32_t rpm, bool clockwise)
 {
+    this->rpm = rpm;
     set_speed(rpm);
     set_direction(clockwise);
     start();

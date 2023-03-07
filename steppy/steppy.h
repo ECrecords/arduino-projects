@@ -1,8 +1,8 @@
 /**
  * @ Author: Elvis Chino-Islas
  * @ Create Time: 2023-01-27 21:26:50
- * @ Modified by: Elvis Chino-Islas
- * @ Modified time: 2023-01-30 22:41:01
+ * @ Modified by: Your nameno-Islas
+ * @ Modified time: 2023-03-06 17:17:20
  * @ Description:
  */
 #pragma once
@@ -25,8 +25,8 @@
 #define SPEED3_RPM   60
 #define SPEED4_RPM   70
 
-enum state_codes {stop_init = 0, run_init, stop_sp1, run_sp1, stop_sp2, run_sp2, stop_sp3, run_sp3, stop_sp4, run_sp4};
-enum ret_code {input1 = 0, input2, repeat};
+enum state_codes {STOP_INIT = 0, RUN_INIT, STOP_SP1, RUN_SP1, STOP_SP2, RUN_SP2, STOP_SP3, RUN_SP3, STOP_SP4, RUN_SP4};
+enum ret_code {IN1 = 0, IN2, NONE};
 
 extern ret_code (*state[])(void);
 
