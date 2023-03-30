@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include <pins_arduino.h>
 
 typedef uint8_t pin_t;
 

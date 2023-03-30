@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "steppy"
+		},
+		{
+			"path": "blinky"
+		},
+		{
+			"path": "pot_led"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
+}

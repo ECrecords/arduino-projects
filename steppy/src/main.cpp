@@ -2,7 +2,7 @@
  * @ Author: Elvis Chino-Islas
  * @ Create Time: 2023-01-27 23:07:07
  * @ Modified by: Your name
- * @ Modified time: 2023-03-06 17:26:26
+ * @ Modified time: 2023-03-29 21:11:24
  * @ Description:
  */
 
@@ -138,6 +138,6 @@ void loop()
 
     char buff[512];
 
-    sprintf(buff, "Current State : %2i | currAngVelocity: %2u RPM \r\n", curr_state, hw.rpm);
+    sprintf(buff, "Current State : %2i | currAngVelocity: %2lu RPM \r\n", curr_state, hw.rpm);
     Serial.print(buff);
 }

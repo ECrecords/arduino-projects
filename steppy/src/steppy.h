@@ -1,8 +1,8 @@
 /**
  * @ Author: Elvis Chino-Islas
  * @ Create Time: 2023-01-27 21:26:50
- * @ Modified by: Your nameno-Islas
- * @ Modified time: 2023-03-06 17:17:20
+ * @ Modified by: Your name
+ * @ Modified time: 2023-03-29 21:10:50
  * @ Description:
  */
 #pragma once
@@ -12,12 +12,12 @@
 
 #define BAUD_RATE   115200
 
-#define INPUT1      PIN3
-#define INPUT2      PIN2
+#define INPUT1      3
+#define INPUT2      2
 
-#define STEP        PIN5 
-#define ENABLE      PIN6
-#define DIR         PIN4
+#define STEP        5
+#define ENABLE      6
+#define DIR         4
 
 #define SPEED0_RPM   10
 #define SPEED1_RPM   30
@@ -34,3 +34,7 @@ extern ret_code (*state[])(void);
 #define N_TRANSITIONS_PER_STATE 3
 
 extern state_codes state_transitions[N_STATES][N_TRANSITIONS_PER_STATE];
+
+void handle_input1();
+
+void handle_input2();
