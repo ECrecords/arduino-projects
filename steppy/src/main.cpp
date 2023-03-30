@@ -2,7 +2,7 @@
  * @ Author: Elvis Chino-Islas
  * @ Create Time: 2023-01-27 23:07:07
  * @ Modified by: Your name
- * @ Modified time: 2023-03-29 21:11:24
+ * @ Modified time: 2023-03-29 21:58:59
  * @ Description:
  */
 
@@ -45,6 +45,8 @@ state_codes state_transitions[N_STATES][N_TRANSITIONS_PER_STATE] = {
 
 void setup()
 {
+    Serial.begin(BAUD_RATE);
+
     pinMode(INPUT1, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(INPUT1), handle_input1, FALLING);
 
@@ -133,11 +135,10 @@ void loop()
     auto state_action = state[curr_state % 2];
     ret_code rc = state_action();
     curr_state = state_transitions[curr_state][rc];
-
+    
     hw.sstep();
 
     char buff[512];
-
-    sprintf(buff, "Current State : %2i | currAngVelocity: %2lu RPM \r\n", curr_state, hw.rpm);
+    sprintf(buff, "Current State : %2i | currAngVelocity: %2lu RPM \r", curr_state, hw.rpm);
     Serial.print(buff);
 }
