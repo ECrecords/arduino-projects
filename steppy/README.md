@@ -1,4 +1,4 @@
-# Warm Up Project 1
+# Warm Up Project 2
 
 ## Submission Details
 **Author:** Elvis Chino-Islas  
