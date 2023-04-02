@@ -82,7 +82,7 @@ void loop()
 
 #ifdef PROGRAM3
      debounce_call_func(BTN0, 50, intr0_triggered, ledr, ldt0, HIGH);
-     debounce_call_func(BTN1, 50, intr1_triggered, ledr, ldt1, HIGH);
+     debounce_call_func(BTN1, 50, intr1_triggered, ledb, ldt1, HIGH);
 #endif
 
 #ifdef PROGRAM4
