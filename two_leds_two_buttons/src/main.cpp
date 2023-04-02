@@ -39,17 +39,17 @@ void debounce_call_func(uint8_t pin, uint32_t debounce_time, volatile bool &inte
      }
 }
 
-void ledr()
+inline void ledr()
 {
      digitalWrite(LEDR, !(digitalRead(LEDR)));
 }
 
-void ledb()
+inline void ledb()
 {
      digitalWrite(LEDB, !(digitalRead(LEDB)));
 }
 
-void ledrb()
+inline void ledrb()
 {
      ledr();
      ledb();
@@ -77,7 +77,7 @@ void loop()
 #endif
 
 #ifdef PROGRAM2
-     debounce_call_func(BTN0, 50, intr1_triggered, ledrb, ldt0, HIGH);
+     debounce_call_func(BTN0, 50, intr0_triggered, ledrb, ldt0, HIGH);
 #endif
 
 #ifdef PROGRAM3
