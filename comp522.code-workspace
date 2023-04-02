@@ -11,6 +11,10 @@
 		},
 		{
 			"path": "."
+		},
+		{
+			"name": "two_leds_two_buttons",
+			"path": "two_leds_two_buttons"
 		}
 	],
 	"settings": {}
