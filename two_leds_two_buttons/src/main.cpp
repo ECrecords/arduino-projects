@@ -1,9 +1,9 @@
 #include <Arduino.h>
 
 #define BTN0 2
-#define BTN1 3
+#define BTN1 4
 
-#define LEDR 4
+#define LEDR 3
 #define LEDB 5
 
 volatile bool intr0_triggered = false;
@@ -22,7 +22,7 @@ void debounce_call_func(uint8_t pin, uint32_t debounce_time, volatile bool &inte
 {
      uint32_t current_time;
 
-     if (interrupt_flag) 
+     if (interrupt_flag)
      {
           current_time = millis();
 
@@ -36,17 +36,23 @@ void debounce_call_func(uint8_t pin, uint32_t debounce_time, volatile bool &inte
                interrupt_flag = false;
                last_debounce_time = current_time;
           }
-
      }
 }
 
-
-void ledr(){
+void ledr()
+{
      digitalWrite(LEDR, !(digitalRead(LEDR)));
 }
 
-void ledb(){
+void ledb()
+{
      digitalWrite(LEDB, !(digitalRead(LEDB)));
+}
+
+void ledrb()
+{
+     ledr();
+     ledb();
 }
 
 void setup()
@@ -63,14 +69,24 @@ void setup()
      pinMode(LEDB, OUTPUT);
 }
 
-
 uint32_t ldt0, ldt1 = 0;
 void loop()
 {
+#ifdef PROGRAM1
      debounce_call_func(BTN0, 50, intr0_triggered, ledr, ldt0, HIGH);
+#endif
 
+#ifdef PROGRAM2
+     debounce_call_func(BTN0, 50, intr1_triggered, ledrb, ldt0, HIGH);
+#endif
 
-     Serial.println(ldt0);
-     //debounce_call_func(BTN1, 50, intr1_triggered, ledb, ldt1, LOW);
+#ifdef PROGRAM3
+     debounce_call_func(BTN0, 50, intr0_triggered, ledr, ldt0, HIGH);
+     debounce_call_func(BTN1, 50, intr1_triggered, ledr, ldt1, HIGH);
+#endif
 
+#ifdef PROGRAM4
+     debounce_call_func(BTN0, 50, intr0_triggered, ledrb, ldt0, HIGH);
+     debounce_call_func(BTN1, 50, intr1_triggered, ledrb, ldt1, HIGH);
+#endif
 }
