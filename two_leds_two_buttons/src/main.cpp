@@ -59,11 +59,13 @@ void setup()
 {
      Serial.begin(PICO_DEFAULT_UART_BAUD_RATE);
 
-     pinMode(BTN0, INPUT_PULLDOWN);
-     pinMode(BTN1, INPUT_PULLDOWN);
-
      attachInterrupt(digitalPinToInterrupt(BTN0), isr0, CHANGE);
+     pinMode(BTN0, INPUT_PULLUP);
+
      attachInterrupt(digitalPinToInterrupt(BTN1), isr1, CHANGE);
+     pinMode(BTN1, INPUT_PULLUP);
+
+     delayMicroseconds(50);
 
      pinMode(LEDR, OUTPUT);
      pinMode(LEDB, OUTPUT);
@@ -73,16 +75,16 @@ uint32_t ldt0, ldt1 = 0;
 void loop()
 {
 #ifdef PROGRAM1
-     debounce_call_func(BTN0, 50, intr0_triggered, ledr, ldt0, HIGH);
+     debounce_call_func(BTN0, 50, intr0_triggered, ledr, ldt0, LOW);
 #endif
 
 #ifdef PROGRAM2
-     debounce_call_func(BTN0, 50, intr0_triggered, ledrb, ldt0, HIGH);
+     debounce_call_func(BTN0, 50, intr0_triggered, ledrb, ldt0, LOW);
 #endif
 
 #ifdef PROGRAM3
-     debounce_call_func(BTN0, 50, intr0_triggered, ledr, ldt0, HIGH);
-     debounce_call_func(BTN1, 50, intr1_triggered, ledb, ldt1, HIGH);
+     debounce_call_func(BTN0, 50, intr0_triggered, ledr, ldt0, LOW);
+     debounce_call_func(BTN1, 50, intr1_triggered, ledb, ldt1, LOW);
 #endif
 
 #ifdef PROGRAM4
