@@ -1,4 +1,4 @@
-## Debouncing Button Inputs with Interrupts
+# Debouncing Button Inputs with Interrupts
 
 This Arduino sketch demonstrates how to debounce button inputs using interrupts and a debounce function. It also shows how to toggle LED outputs in response to button inputs. There are four different programs included, which can be selected by defining different preprocessor macros at compile time. The programs demonstrate different ways to use the debounce function and toggle the LEDs in response to button inputs.
 ## Getting Started
