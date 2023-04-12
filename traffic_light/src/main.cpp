@@ -1,5 +1,20 @@
+/*
+ * Traffic Light Controller
+ * 
+ * Author: Your Name
+ * Date: 2023-04-12
+ * License: MIT
+ * 
+ * Description: This program controls a traffic light system, cycling through
+ * six different states. The traffic light system consists of two sets of
+ * traffic lights: one for North-South and the other for West-East directions.
+ * Each set of traffic lights has red, yellow, and green LEDs. The system is
+ * controlled using a shift register.
+ */
+
 #include <Arduino.h>
 
+// Total number of states in the traffic light cycle
 #define TOTAL_STATES 6
 
 // Define the bit patterns for the North-South and West-East traffic light LEDs
@@ -36,32 +51,32 @@ uint32_t switch_time[TOTAL_STATES]{
 
 void setup()
 {
-     // Set the pins for the shift register as output
-     pinMode(DATA_PIN, OUTPUT);
-     pinMode(LATCH_PIN, OUTPUT);
-     pinMode(CLOCK_PIN, OUTPUT);
+    // Set the pins for the shift register as output
+    pinMode(DATA_PIN, OUTPUT);
+    pinMode(LATCH_PIN, OUTPUT);
+    pinMode(CLOCK_PIN, OUTPUT);
 }
 
 void loop()
 {
-     uint32_t current_time;
-     uint32_t last_upated_time;
+    uint32_t current_time;
+    uint32_t last_upated_time;
 
-     // Iterate through each state in the traffic light cycle
-     for (uint8_t i = 0; i < TOTAL_STATES; i++)
-     {
-          current_time = millis();
-          last_upated_time = millis();
+    // Iterate through each state in the traffic light cycle
+    for (uint8_t i = 0; i < TOTAL_STATES; i++)
+    {
+        current_time = millis();
+        last_upated_time = millis();
 
-          // Send the current state to the shift register
-          digitalWrite(LATCH_PIN, LOW);
-          shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, output_data[i]);
-          digitalWrite(LATCH_PIN, HIGH);
+        // Send the current state to the shift register
+        digitalWrite(LATCH_PIN, LOW);
+        shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, output_data[i]);
+        digitalWrite(LATCH_PIN, HIGH);
 
-          // Keep the current state active until its switch_time duration has passed
-          while ((current_time - last_upated_time) < switch_time[i])
-          {
-               current_time = millis();
-          }
-     }
+        // Keep the current state active until its switch_time duration has passed
+        while ((current_time - last_upated_time) < switch_time[i])
+        {
+            current_time = millis();
+        }
+    }
 }

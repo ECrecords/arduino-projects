@@ -17,6 +17,9 @@
 		},
 		{
 			"path": "freeRTOS_blinky"
+		},
+		{
+			"path": "."
 		}
 
 	],
