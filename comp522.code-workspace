@@ -10,12 +10,15 @@
 			"path": "pot_led"
 		},
 		{
-			"path": "."
+			"path": "two_leds_two_buttons"
 		},
 		{
-			"name": "two_leds_two_buttons",
-			"path": "two_leds_two_buttons"
+			"path": "traffic_light"
+		},
+		{
+			"path": "freeRTOS_blinky"
 		}
+
 	],
 	"settings": {}
 }
