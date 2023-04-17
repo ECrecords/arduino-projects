@@ -1,6 +1,15 @@
 #include <shift_register.h>
 
-ShiftRegister::ShiftRegister(uint8_t clockPin, uint8_t latchPin, uint8_t dataPin): __clockPin(clockPin), __latchPin(latchPin), __dataPin(dataPin) {}
+ShiftRegister::ShiftRegister(uint8_t clockPin, uint8_t latchPin, uint8_t dataPin): __clockPin(clockPin), __latchPin(latchPin), __dataPin(dataPin) 
+{
+    pinMode(__clockPin, OUTPUT);
+    pinMode(__latchPin, OUTPUT);
+    pinMode(__dataPin, OUTPUT);
+
+    digitalWrite(__latchPin, HIGH);
+
+    write_data(0xA5);
+}
 
 bool ShiftRegister::get_pin(uint8_t pin)
 {
