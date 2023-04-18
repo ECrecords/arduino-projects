@@ -22,6 +22,8 @@ private:
     uint8_t __data; /**< Current state of the shift register. */
 
 public:
+
+    ShiftRegister();
     /**
      * @brief Constructor for the ShiftRegister class.
      * @param clockPin Pin number for the clock signal.
