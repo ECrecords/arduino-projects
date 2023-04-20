@@ -181,13 +181,7 @@ void northSouthLight(void *pvParameters)
 
     for (;;)
     {
-        if (xSemaphoreTake(stateMutex, portMAX_DELAY) == pdTRUE)
-        {
-            readState = currentState;
-            xSemaphoreGive(stateMutex);
-        }
-        else
-            continue;
+        getIntersectionState(readState);
 
         xCurrentTickCount = xTaskGetTickCount();
 
@@ -227,10 +221,7 @@ void northSouthLight(void *pvParameters)
             currentState.northSouth = readState.northSouth;
             xSemaphoreGive(stateMutex);
 
-            xSemaphoreTake(shiftRegisterAccess, portMAX_DELAY);
-            lightResource.clear_mask(offLights);
-            lightResource.set_mask(onLights);
-            xSemaphoreGive(shiftRegisterAccess);
+            handleTrafficLight(onLights, offLights);
         }
 
         else if (readState.northSouthPriority)
@@ -243,10 +234,7 @@ void northSouthLight(void *pvParameters)
             currentState.northSouth = readState.northSouth;
             xSemaphoreGive(stateMutex);
 
-            xSemaphoreTake(shiftRegisterAccess, portMAX_DELAY);
-            lightResource.clear_mask(offLights);
-            lightResource.set_mask(onLights);
-            xSemaphoreGive(shiftRegisterAccess);
+            handleTrafficLight(onLights, offLights);
         }
 
         else if (readState.eastWestPriority)
@@ -259,10 +247,7 @@ void northSouthLight(void *pvParameters)
             currentState.northSouth = readState.northSouth;
             xSemaphoreGive(stateMutex);
 
-            xSemaphoreTake(shiftRegisterAccess, portMAX_DELAY);
-            lightResource.clear_mask(offLights);
-            lightResource.set_mask(onLights);
-            xSemaphoreGive(shiftRegisterAccess);
+            handleTrafficLight(onLights, offLights);
         }
     }
 }
@@ -280,13 +265,7 @@ void eastWestLight(void *pvParameters)
 
     for (;;)
     {
-        if (xSemaphoreTake(stateMutex, portMAX_DELAY) == pdTRUE)
-        {
-            readState = currentState;
-            xSemaphoreGive(stateMutex);
-        }
-        else
-            continue;
+        getIntersectionState(readState);
 
         xCurrentTickCount = xTaskGetTickCount();
 
@@ -326,10 +305,7 @@ void eastWestLight(void *pvParameters)
             currentState.eastWest = readState.eastWest;
             xSemaphoreGive(stateMutex);
 
-            xSemaphoreTake(shiftRegisterAccess, portMAX_DELAY);
-            lightResource.clear_mask(offLights);
-            lightResource.set_mask(onLights);
-            xSemaphoreGive(shiftRegisterAccess);
+            handleTrafficLight(onLights, offLights);
         }
 
         else if (readState.northSouthPriority)
@@ -342,10 +318,7 @@ void eastWestLight(void *pvParameters)
             currentState.eastWest = readState.eastWest;
             xSemaphoreGive(stateMutex);
 
-            xSemaphoreTake(shiftRegisterAccess, portMAX_DELAY);
-            lightResource.clear_mask(offLights);
-            lightResource.set_mask(onLights);
-            xSemaphoreGive(shiftRegisterAccess);
+            handleTrafficLight(onLights, offLights);
         }
         else if (readState.eastWestPriority)
         {
@@ -357,10 +330,7 @@ void eastWestLight(void *pvParameters)
             currentState.eastWest = readState.eastWest;
             xSemaphoreGive(stateMutex);
 
-            xSemaphoreTake(shiftRegisterAccess, portMAX_DELAY);
-            lightResource.clear_mask(offLights);
-            lightResource.set_mask(onLights);
-            xSemaphoreGive(shiftRegisterAccess);
+            handleTrafficLight(onLights, offLights);
         }
     }
 }
