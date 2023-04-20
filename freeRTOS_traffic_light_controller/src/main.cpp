@@ -161,10 +161,10 @@ inline void getIntersectionState(IntersectionState_t &readState)
     xSemaphoreGive(stateMutex);
 }
 
-inline void updateIntersectionState(IntersectionState_t state)
+inline void updateIntersectionState(TrafficLightState_t &target, TrafficLightState_t update)
 {
     xSemaphoreTake(stateMutex, portMAX_DELAY);
-    currentState = state;
+    target = update;
     xSemaphoreGive(stateMutex);
 }
 
@@ -217,9 +217,7 @@ void northSouthLight(void *pvParameters)
                 break;
             }
 
-            xSemaphoreTake(stateMutex, portMAX_DELAY);
-            currentState.northSouth = readState.northSouth;
-            xSemaphoreGive(stateMutex);
+            updateIntersectionState(currentState.northSouth, readState.northSouth);
 
             handleTrafficLight(onLights, offLights);
         }
@@ -230,9 +228,7 @@ void northSouthLight(void *pvParameters)
             onLights = 1 << GREEN_NS;
             offLights = 1 << RED_NS | 1 << YELLOW_NS;
 
-            xSemaphoreTake(stateMutex, portMAX_DELAY);
-            currentState.northSouth = readState.northSouth;
-            xSemaphoreGive(stateMutex);
+            updateIntersectionState(currentState.northSouth, readState.northSouth);
 
             handleTrafficLight(onLights, offLights);
         }
@@ -243,9 +239,7 @@ void northSouthLight(void *pvParameters)
             onLights = 1 << RED_NS;
             offLights = 1 << GREEN_NS | 1 << YELLOW_NS;
 
-            xSemaphoreTake(stateMutex, portMAX_DELAY);
-            currentState.northSouth = readState.northSouth;
-            xSemaphoreGive(stateMutex);
+            updateIntersectionState(currentState.northSouth, readState.northSouth);
 
             handleTrafficLight(onLights, offLights);
         }
@@ -301,9 +295,7 @@ void eastWestLight(void *pvParameters)
                 break;
             }
 
-            xSemaphoreTake(stateMutex, portMAX_DELAY);
-            currentState.eastWest = readState.eastWest;
-            xSemaphoreGive(stateMutex);
+            updateIntersectionState(currentState.eastWest, readState.eastWest);
 
             handleTrafficLight(onLights, offLights);
         }
@@ -326,9 +318,7 @@ void eastWestLight(void *pvParameters)
             onLights = 1 << GREEN_EW;
             offLights = 1 << RED_EW | 1 << YELLOW_EW;
 
-            xSemaphoreTake(stateMutex, portMAX_DELAY);
-            currentState.eastWest = readState.eastWest;
-            xSemaphoreGive(stateMutex);
+            updateIntersectionState(currentState.eastWest, readState.eastWest);
 
             handleTrafficLight(onLights, offLights);
         }
