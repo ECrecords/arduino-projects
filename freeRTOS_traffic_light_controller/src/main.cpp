@@ -1,3 +1,12 @@
+/**
+ * Traffic Light Control System using FreeRTOS
+ * Author: ELvis Chino-Islas
+ *
+ * This program is designed to control the traffic lights at an intersection
+ * using FreeRTOS tasks and semaphores. The traffic lights have priority
+ * sensors that trigger the lights to change based on the direction of traffic.
+ */
+
 #include <Arduino.h>
 #include <Arduino_FreeRTOS.h>
 #include <shift_register.h>
@@ -25,6 +34,7 @@
 #define NS_SENSE 2
 #define EW_SENSE 3
 
+// Enum class representing the different states of the traffic light
 enum class TrafficLightState_t
 {
     GREEN,
@@ -32,12 +42,13 @@ enum class TrafficLightState_t
     RED
 };
 
+// Struct representing the current state of the intersection
 struct IntersectionState_t
 {
     TrafficLightState_t northSouth;
     TrafficLightState_t eastWest;
     bool northSouthPriority;
-    bool easeWestPriority;
+    bool eastWestPriority;
 };
 
 ShiftRegister lightResource;
@@ -45,6 +56,7 @@ SemaphoreHandle_t shiftRegisterAccess;
 SemaphoreHandle_t stateMutex;
 IntersectionState_t currentState;
 
+// Durations for each traffic light state
 const TickType_t xRedDuration = pdMS_TO_TICKS(5000);
 const TickType_t xYellowDuration = pdMS_TO_TICKS(2000);
 const TickType_t xGreenDuration = pdMS_TO_TICKS(5000);
@@ -129,7 +141,7 @@ void toggleEastWestPriority(void *pvParameters)
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY); // Wait for the notification
         Serial.println("Toggled East-West Priority");
         xSemaphoreTake(stateMutex, portMAX_DELAY);
-        currentState.easeWestPriority = !currentState.easeWestPriority;
+        currentState.eastWestPriority = !currentState.eastWestPriority;
         xSemaphoreGive(stateMutex);
     }
 }
@@ -157,7 +169,7 @@ void northSouthLight(void *pvParameters)
 
         xCurrentTickCount = xTaskGetTickCount();
 
-        if (((xCurrentTickCount - xLastUpdatedTime) >= xDelayDuration) && !readState.northSouthPriority && !readState.easeWestPriority)
+        if (((xCurrentTickCount - xLastUpdatedTime) >= xDelayDuration) && !readState.northSouthPriority && !readState.eastWestPriority)
         {
 
             switch (readState.northSouth)
@@ -215,7 +227,7 @@ void northSouthLight(void *pvParameters)
             xSemaphoreGive(shiftRegisterAccess);
         }
 
-        else if (readState.easeWestPriority)
+        else if (readState.eastWestPriority)
         {
             readState.northSouth = TrafficLightState_t::RED;
             onLights = 1 << RED_NS;
@@ -256,7 +268,7 @@ void eastWestLight(void *pvParameters)
 
         xCurrentTickCount = xTaskGetTickCount();
 
-        if (((xCurrentTickCount - xLastUpdatedTime) >= xDelayDuration) && !readState.northSouthPriority && !readState.easeWestPriority)
+        if (((xCurrentTickCount - xLastUpdatedTime) >= xDelayDuration) && !readState.northSouthPriority && !readState.eastWestPriority)
         {
             switch (readState.eastWest)
             {
@@ -313,7 +325,7 @@ void eastWestLight(void *pvParameters)
             lightResource.set_mask(onLights);
             xSemaphoreGive(shiftRegisterAccess);
         }
-        else if (readState.easeWestPriority)
+        else if (readState.eastWestPriority)
         {
             readState.eastWest = TrafficLightState_t::GREEN;
             onLights = 1 << GREEN_EW;
@@ -331,31 +343,44 @@ void eastWestLight(void *pvParameters)
     }
 }
 
+// Initialize the microcontroller pins and settings for the traffic light system
 void setup()
 {
+    // Set up serial communication for debugging purposes
     Serial.begin(9600);
+
+    // Configure the North-South and East-West sensor pins as input pull-ups
     pinMode(NS_SENSE, INPUT_PULLUP);
     pinMode(EW_SENSE, INPUT_PULLUP);
 
+    // Initialize the shift register and the semaphores for controlling access to shared resources
     lightResource = ShiftRegister(CLOCK_PIN, LATCH_PIN, DATA_PIN);
     shiftRegisterAccess = xSemaphoreCreateMutex();
     stateMutex = xSemaphoreCreateMutex();
+
+    // Set the initial states for the North-South and East-West traffic lights
     currentState.northSouth = TrafficLightState_t::GREEN;
     currentState.eastWest = TrafficLightState_t::RED;
 
+    // Attach the interrupt service routines for the North-South and East-West sensors
     attachInterrupt(digitalPinToInterrupt(NS_SENSE), NorthSouthSensorISR, FALLING);
     attachInterrupt(digitalPinToInterrupt(EW_SENSE), EastWestSensorISR, FALLING);
 
+    // Create the tasks for managing the North-South and East-West traffic lights
     xTaskCreate(northSouthLight, "North South Light", 128, NULL, 1, NULL);
     xTaskCreate(eastWestLight, "East West Light", 128, NULL, 1, NULL);
 
+    // Create the tasks for handling North-South and East-West sensor interrupts
     xTaskCreate(toggleNorthSouthPriority, "North South Sense Handler", 128, NULL, 2, NULL);
     xTaskCreate(toggleEastWestPriority, "East West Sense Handler", 128, NULL, 2, NULL);
 
+    // Start the FreeRTOS scheduler
     vTaskStartScheduler();
 
+    // Release the semaphores for the shift register and the shared state mutex
     xSemaphoreGive(shiftRegisterAccess);
     xSemaphoreGive(stateMutex);
 }
 
+// Main loop function - Not used in this application, as the tasks are managed by FreeRTOS
 void loop() {}
