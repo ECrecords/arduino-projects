@@ -104,7 +104,6 @@ void EastWestSensorISR()
     // Check if the time elapsed since the last interrupt is greater than the debounce time
     if (currentTickCount - lastEastWestInterruptTickCount >= debounceTicks)
     {
-        Serial.println("East-West Sensor tiggered");
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
         vTaskNotifyGiveFromISR(xEastWestTaskToNotify, &xHigherPriorityTaskWoken);
         if (xHigherPriorityTaskWoken)
@@ -117,54 +116,81 @@ void EastWestSensorISR()
     lastEastWestInterruptTickCount = currentTickCount;
 }
 
+// Toggle the North-South priority state when the North-South sensor is triggered
 void toggleNorthSouthPriority(void *pvParameters)
 {
+    // Save the handle of the current task for use with notifications
     xNorthSouthTaskToNotify = xTaskGetCurrentTaskHandle();
 
     while (1)
     {
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY); // Wait for the notification
+        // Wait for a notification from the North-South sensor interrupt service routine
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
-        Serial.println("Toggled North-South Priority");
+        // Toggle the North-South priority state
         xSemaphoreTake(stateMutex, portMAX_DELAY);
         currentState.northSouthPriority = !currentState.northSouthPriority;
         xSemaphoreGive(stateMutex);
     }
 }
 
+// Toggle the East-West priority state when the East-West sensor is triggered
 void toggleEastWestPriority(void *pvParameters)
 {
+    // Save the handle of the current task for use with notifications
     xEastWestTaskToNotify = xTaskGetCurrentTaskHandle();
 
     while (1)
     {
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY); // Wait for the notification
-        Serial.println("Toggled East-West Priority");
+        // Wait for a notification from the East-West sensor interrupt service routine
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+
+        // Toggle the East-West priority state
         xSemaphoreTake(stateMutex, portMAX_DELAY);
         currentState.eastWestPriority = !currentState.eastWestPriority;
         xSemaphoreGive(stateMutex);
     }
 }
 
+// Traffic light handler function to set the on and off masks for the shift register and update the state of the lights
 inline void handleTrafficLight(uint8_t onMask, uint8_t offMask)
 {
+    // Take the semaphore to access the shift register
     xSemaphoreTake(shiftRegisterAccess, portMAX_DELAY);
+
+    // Clear the pins for the lights that need to be turned off
     lightResource.clear_mask(offMask);
+
+    // Set the pins for the lights that need to be turned on
     lightResource.set_mask(onMask);
+
+    // Release the semaphore to allow other tasks to access the shift register
     xSemaphoreGive(shiftRegisterAccess);
 }
 
+// Function to get the current intersection state from the shared state variable
 inline void getIntersectionState(IntersectionState_t &readState)
 {
+    // Take the semaphore to access the shared state variable
     xSemaphoreTake(stateMutex, portMAX_DELAY);
+
+    // Read the current intersection state and store it in the parameter
     readState = currentState;
+
+    // Release the semaphore to allow other tasks to access the shared state variable
     xSemaphoreGive(stateMutex);
 }
 
+// Function to update the state of the traffic light in the shared state variable
 inline void updateIntersectionState(TrafficLightState_t &target, TrafficLightState_t update)
 {
+    // Take the semaphore to access the shared state variable
     xSemaphoreTake(stateMutex, portMAX_DELAY);
+
+    // Update the state of the traffic light in the shared state variable
     target = update;
+
+    // Release the semaphore to allow other tasks to access the shared state variable
     xSemaphoreGive(stateMutex);
 }
 
