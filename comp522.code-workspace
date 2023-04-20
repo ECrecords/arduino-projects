@@ -1,27 +1,12 @@
 {
 	"folders": [
 		{
-			"path": "steppy"
-		},
-		{
-			"path": "blinky"
-		},
-		{
-			"path": "pot_led"
-		},
-		{
-			"path": "two_leds_two_buttons"
-		},
-		{
-			"path": "traffic_light"
-		},
-		{
-			"path": "freeRTOS_blinky"
-		},
-		{
 			"path": "."
+		},
+		{
+			"name": "freeRTOS_traffic_light_controller",
+			"path": "freeRTOS_traffic_light_controller"
 		}
-
 	],
 	"settings": {}
 }
