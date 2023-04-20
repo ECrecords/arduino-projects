@@ -57,11 +57,9 @@ SemaphoreHandle_t stateMutex;
 IntersectionState_t currentState;
 
 // Durations for each traffic light state
-const TickType_t xRedDuration = pdMS_TO_TICKS(5000);
 const TickType_t xYellowDuration = pdMS_TO_TICKS(2000);
 const TickType_t xGreenDuration = pdMS_TO_TICKS(5000);
-const TickType_t xRedGreenDuration = pdMS_TO_TICKS(3000);
-const TickType_t xErrorDuration = pdMS_TO_TICKS(1000);
+const TickType_t xRedGreenDuration = pdMS_TO_TICKS(2500);
 
 TaskHandle_t xNorthSouthTaskToNotify = NULL;
 TaskHandle_t xEastWestTaskToNotify = NULL;
@@ -193,30 +191,32 @@ inline void updateIntersectionState(TrafficLightState_t &target, TrafficLightSta
     // Release the semaphore to allow other tasks to access the shared state variable
     xSemaphoreGive(stateMutex);
 }
-
 void northSouthLight(void *pvParameters)
 {
+    // Initialize delay duration, last updated time, and intersection state
     TickType_t xDelayDuration = pdMS_TO_TICKS(0);
     TickType_t xLastUpdatedTime = xTaskGetTickCount();
     IntersectionState_t readState;
 
+    // Initialize onLights, offLights, and current tick count
     uint8_t onLights;
     uint8_t offLights;
-
     TickType_t xCurrentTickCount;
 
     for (;;)
     {
+        // Get intersection state and current tick count
         getIntersectionState(readState);
-
         xCurrentTickCount = xTaskGetTickCount();
 
+        // Update north-south lights based on intersection state
         if (((xCurrentTickCount - xLastUpdatedTime) >= xDelayDuration) && !readState.northSouthPriority && !readState.eastWestPriority)
         {
-
+            // Update lights based on current north-south state
             switch (readState.northSouth)
             {
             case TrafficLightState_t::GREEN:
+                // Set delay duration, onLights, offLights, and next state
                 xDelayDuration = xGreenDuration;
                 onLights = 1 << GREEN_NS;
                 offLights = 1 << RED_NS | 1 << YELLOW_NS;
@@ -224,6 +224,7 @@ void northSouthLight(void *pvParameters)
                 xLastUpdatedTime = xCurrentTickCount;
                 break;
             case TrafficLightState_t::YELLOW:
+                // Set delay duration, onLights, offLights, and next state
                 xDelayDuration = xYellowDuration;
                 onLights = 1 << YELLOW_NS;
                 offLights = 1 << RED_NS | 1 << GREEN_NS;
@@ -231,42 +232,41 @@ void northSouthLight(void *pvParameters)
                 xLastUpdatedTime = xCurrentTickCount;
                 break;
             case TrafficLightState_t::RED:
+                // If east-west is also red, update lights and set delay duration
                 if (readState.eastWest == TrafficLightState_t::RED)
                 {
                     readState.northSouth = TrafficLightState_t::GREEN;
                     xLastUpdatedTime = xCurrentTickCount;
                     xDelayDuration = xRedGreenDuration;
                 }
+                // Otherwise, just update lights
                 onLights = 1 << RED_NS;
                 offLights = 1 << GREEN_NS | 1 << YELLOW_NS;
-
                 break;
             }
 
+            // Update intersection state and lights
             updateIntersectionState(currentState.northSouth, readState.northSouth);
-
             handleTrafficLight(onLights, offLights);
         }
-
+        // If north-south priority is active, set green lights
         else if (readState.northSouthPriority)
         {
             readState.northSouth = TrafficLightState_t::GREEN;
             onLights = 1 << GREEN_NS;
             offLights = 1 << RED_NS | 1 << YELLOW_NS;
-
+            // Update intersection state and lights
             updateIntersectionState(currentState.northSouth, readState.northSouth);
-
             handleTrafficLight(onLights, offLights);
         }
-
+        // If east-west priority is active, set red lights
         else if (readState.eastWestPriority)
         {
             readState.northSouth = TrafficLightState_t::RED;
             onLights = 1 << RED_NS;
             offLights = 1 << GREEN_NS | 1 << YELLOW_NS;
-
+            // Update intersection state and lights
             updateIntersectionState(currentState.northSouth, readState.northSouth);
-
             handleTrafficLight(onLights, offLights);
         }
     }
