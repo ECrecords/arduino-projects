@@ -40,3 +40,13 @@ void ShiftRegister::write_to_pin(uint8_t pin, bool value)
     uint8_t newData =  (__data & ~pinMask) | pinValue;
     write_data(newData);
 }
+
+void ShiftRegister::set_mask(uint8_t mask)
+{
+    write_data(__data | mask);
+}
+
+void ShiftRegister::clear_mask(uint8_t mask)
+{
+    write_data(__data & ~mask);
+}

@@ -23,7 +23,11 @@ private:
 
 public:
 
+    /**
+     * @brief Default constructor for the ShiftRegister class.
+     */
     ShiftRegister();
+
     /**
      * @brief Constructor for the ShiftRegister class.
      * @param clockPin Pin number for the clock signal.
@@ -57,6 +61,19 @@ public:
      * @return The boolean state of the specified pin.
      */
     bool get_pin(uint8_t pin);
+
+    /**
+     * @brief Sets a mask to selectively enable pins in the shift register.
+     * @param mask The mask value.
+     */
+    void set_mask(uint8_t mask);
+
+    /**
+     * @brief Clears a mask to selectively disable pins in the shift register.
+     * @param mask The mask value.
+     */
+    void clear_mask(uint8_t mask);
+    
 };
 
 #endif // SHIFT_REGISTER_H
