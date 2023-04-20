@@ -146,6 +146,28 @@ void toggleEastWestPriority(void *pvParameters)
     }
 }
 
+inline void handleTrafficLight(uint8_t onMask, uint8_t offMask)
+{
+    xSemaphoreTake(shiftRegisterAccess, portMAX_DELAY);
+    lightResource.clear_mask(offMask);
+    lightResource.set_mask(onMask);
+    xSemaphoreGive(shiftRegisterAccess);
+}
+
+inline void getIntersectionState(IntersectionState_t &readState)
+{
+    xSemaphoreTake(stateMutex, portMAX_DELAY);
+    readState = currentState;
+    xSemaphoreGive(stateMutex);
+}
+
+inline void updateIntersectionState(IntersectionState_t state)
+{
+    xSemaphoreTake(stateMutex, portMAX_DELAY);
+    currentState = state;
+    xSemaphoreGive(stateMutex);
+}
+
 void northSouthLight(void *pvParameters)
 {
     TickType_t xDelayDuration = pdMS_TO_TICKS(0);
