@@ -274,26 +274,30 @@ void northSouthLight(void *pvParameters)
 
 void eastWestLight(void *pvParameters)
 {
+    // Initialize delay duration, last updated time, and intersection state
     TickType_t xDelayDuration = pdMS_TO_TICKS(0);
     TickType_t xLastUpdatedTime = xTaskGetTickCount();
     IntersectionState_t readState;
 
+    // Initialize onLights, offLights, and current tick count
     uint8_t onLights;
     uint8_t offLights;
-
     TickType_t xCurrentTickCount;
 
     for (;;)
     {
+        // Get intersection state and current tick count
         getIntersectionState(readState);
-
         xCurrentTickCount = xTaskGetTickCount();
 
+        // If no priority is active and the time since the last update has exceeded the delay duration, update the east-west light states
         if (((xCurrentTickCount - xLastUpdatedTime) >= xDelayDuration) && !readState.northSouthPriority && !readState.eastWestPriority)
         {
+            // Update lights based on current east-west state
             switch (readState.eastWest)
             {
             case TrafficLightState_t::GREEN:
+                // Set delay duration, onLights, offLights, and next state
                 xDelayDuration = xGreenDuration;
                 onLights = 1 << GREEN_EW;
                 offLights = 1 << RED_EW | 1 << YELLOW_EW;
@@ -301,6 +305,7 @@ void eastWestLight(void *pvParameters)
                 xLastUpdatedTime = xCurrentTickCount;
                 break;
             case TrafficLightState_t::YELLOW:
+                // Set delay duration, onLights, offLights, and next state
                 xDelayDuration = xYellowDuration;
                 onLights = 1 << YELLOW_EW;
                 offLights = 1 << RED_EW | 1 << GREEN_EW;
@@ -308,44 +313,43 @@ void eastWestLight(void *pvParameters)
                 xLastUpdatedTime = xCurrentTickCount;
                 break;
             case TrafficLightState_t::RED:
+                // If north-south is also red, update lights and set delay duration
                 if (readState.northSouth == TrafficLightState_t::RED)
                 {
                     readState.eastWest = TrafficLightState_t::GREEN;
                     xLastUpdatedTime = xCurrentTickCount;
                     xDelayDuration = xRedGreenDuration;
                 }
-
+                // Otherwise, just update lights
                 onLights = 1 << RED_EW;
                 offLights = 1 << GREEN_EW | 1 << YELLOW_EW;
-
                 break;
             }
 
+            // Update intersection state and lights
             updateIntersectionState(currentState.eastWest, readState.eastWest);
-
             handleTrafficLight(onLights, offLights);
         }
-
+        // If north-south priority is active, set east-west red lights
         else if (readState.northSouthPriority)
         {
             readState.eastWest = TrafficLightState_t::RED;
             onLights = 1 << RED_EW;
             offLights = 1 << GREEN_EW | 1 << YELLOW_EW;
 
-            xSemaphoreTake(stateMutex, portMAX_DELAY);
-            currentState.eastWest = readState.eastWest;
-            xSemaphoreGive(stateMutex);
-
+            // Update intersection state and lights
+            updateIntersectionState(currentState.eastWest, readState.eastWest);
             handleTrafficLight(onLights, offLights);
         }
+        // If east-west priority is active, set east-west green lights
         else if (readState.eastWestPriority)
         {
             readState.eastWest = TrafficLightState_t::GREEN;
             onLights = 1 << GREEN_EW;
             offLights = 1 << RED_EW | 1 << YELLOW_EW;
 
+            // Update intersection state and lights
             updateIntersectionState(currentState.eastWest, readState.eastWest);
-
             handleTrafficLight(onLights, offLights);
         }
     }
